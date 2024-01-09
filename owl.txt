@@ -1,0 +1,57 @@
+چجوری با کمک Owl یک to Do List  بنویسم؟
+
+	توی این بلاگ میخوایم یک todo list خیلی ساده و کاربری رو باهم بنویسیم.
+	با نوشتن این برنامه ساده میتونیم به راحتی کار با owl رو شروع کنیم و یواش یواش با ویژگی هاش آشنا بشیم.
+
+در آخر این مقاله چه توانایی هایی کسب می کنیم؟
+
+	۱. با components  های owl آشنا می شویم.
+	۲. با مبحث store در owl  آشنا میشیم .
+	۳.یاد می گیریم چجوری ساختار ابلیکیشنمون رو سازمان دهی کنیم و فایل ها رو به چه صورت کنار هم قرار بدیم.
+
+اولین قدم این هست که در یک آدرس دلخواه توی سیستم خودتون ساختار زیر رو بسازید:
+
+	ToDoList/
+		App.js
+		App.css
+		Index.html
+
+باید به ادرس زیر در گیت هاب برید و فایل owl.iife.js رو برای خودتون دانلود کنید و با تغییر نا این ایل به owl.js این فایل رو کنار بروژتون قرار بدید
+https://github.com/odoo/owl/releases.
+
+
+توی فایل html این کد هارو قرار بدید.
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+	<meta charset="UTF-8" />
+	<title>OWL Todo App</title>
+	<link rel="stylesheet" href="app.css" />
+  </head>
+  <body>
+	<script src="owl.js"></script>
+	<script src="app.js"></script>
+  </body>
+</html>
+توضیح کد:
+یک کد ساده html هست که توی قسمت بدنه به دو فایل دیگه ای که ساختیم رفرنس دادیم.
+و در قسمت بالایی به کد های css رفرنس دادیم.
+
+برای شروع کار و آشنایی با Root component این کد رو توی فایل app.js بنویسید:
+
+const { Component, mount, xml } = owl;
+
+// Owl Components
+class Root extends Component {
+  static template = xml`<div>todo app</div>`;
+}
+
+mount(Root, document.body);
+
+حالا میتونید صفحه ی  html خودتون رو توی یک مرورگر باز کنید. یک بیام(todo app) میبینید.
+توضیح کد : 
+به سادگی یک component  تعریف کردیم (Root) و اون رو به body صفحه index.html  ارسال کردیم.
+
+حالا وقتش رسیده تعدادی تسک هم به برناممون اضافه کنیم.
+میتونیم این تسک ها رو در قالب json اضافه کنیم. 
