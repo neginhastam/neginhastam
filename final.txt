@@ -1,0 +1,477 @@
+چجوری با کمک Owl یک to Do List  بنویسم؟
+
+	توی این بلاگ میخوایم یک todo list خیلی ساده و کاربری رو باهم بنویسیم.
+	با نوشتن این برنامه ساده میتونیم به راحتی کار با owl رو شروع کنیم و یواش یواش با ویژگی هاش آشنا بشیم.
+
+در آخر این مقاله چه توانایی هایی کسب می کنیم؟
+
+	۱. با components  های owl آشنا می شویم.
+	۲. با مبحث store در owl  آشنا میشیم .
+	۳.یاد می گیریم چجوری ساختار ابلیکیشنمون رو سازمان دهی کنیم و فایل ها رو به چه صورت کنار هم قرار بدیم.
+
+اگر بخوایم یک برنامه owl رو به زبان ساده تعریف کنیم  : 
+یک جز ریشه : root component 
+یک مجموعه قالب ارسال : template 
+و تنظیمات مربوط : config
+
+اولین قدم این هست که در یک آدرس دلخواه توی سیستم خودتون ساختار زیر رو بسازید:
+
+	ToDoList/
+		App.js
+		App.css
+		Index.html
+
+باید به ادرس زیر در گیت هاب برید و فایل owl.iife.js رو برای خودتون دانلود کنید و با تغییر نام این فایل به owl.js این فایل رو کنار بروژتون قرار بدید
+https://github.com/odoo/owl/releases.
+
+
+توی فایل html این کد هارو قرار بدید.
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+	<meta charset="UTF-8" />
+	<title>OWL Todo App</title>
+	<link rel="stylesheet" href="app.css" />
+  </head>
+  <body>
+	<script src="owl.js"></script>
+	<script src="app.js"></script>
+  </body>
+</html>
+برای شروع کار و آشنایی با Root component این کد رو توی فایل app.js بنویسید:
+const { Component, mount, xml } = owl;
+
+// Owl Components
+class Root extends Component {
+  static template = xml`<div>todo app</div>`;
+}
+
+mount(Root, document.body);
+
+حالا میتونید صفحه ی  html خودتون رو توی یک مرورگر باز کنید. یک بیام(todo app) میبینید.
+توضیح کد : 
+به سادگی یک component  تعریف کردیم (Root) و اون رو به body صفحه index.html  ارسال کردیم.
+همون طور که می بینید Root component یک کلاس هست. ما اجزا رو با کلاس ها تعریف می کنیم.
+نقطه ی اصلی ورود به برنامه ها با کلمه ی کلیدی mount اتفاق می افته و ما هر کلاس رو روی یک نقطه ورودی سوار می کنیم.
+کلمه ی xml کمک میکنه بتونیم یک قالب برای کارمون تعریف کنیم.
+
+حالا وقتش رسیده قابلیت اضافه کردن تسک رو داشته باشیم.
+
+برای شروع یک input box  در بالای تسک هامون اضافه میکنیم. این باکس باید خارج از حقله تسک ها بعد از شروع <div> اول اضافه بشه.
+class Root extends Component {
+static template = xml/* xml */ `
+    <div class="task-list">
+        <input placeholder="Enter a new task" t-on-keyup="addTask" t-ref="add-input"/>
+        <t t-foreach="tasks" t-as="task" t-key="task.id">
+            <div class="task">
+                <input type="checkbox" t-att-checked="task.isCompleted"/>
+                <span><t t-esc="task.text"/></span>
+            </div>
+        </t>
+    </div>`;
+    nextId = 1;
+    tasks = useState([ ]);
+addTask(ev) {
+	// 13 is keycode for ENTER
+	if (ev.keyCode === 13) {
+    	const text = ev.target.value.trim();
+    	ev.target.value = "";
+    	if (text) {
+        	const newTask = {
+            	id: this.nextId++,
+            	text: text,
+            	isCompleted: false,
+        	};
+        	this.tasks.push(newTask);
+    	}
+	}
+}
+}
+
+حالا نیاز هست که بتونیم عدد  هی id رو بسازیم . برای این کار به سادگی از nextId استفاده می کنیم و هم زمان آرایه تسک ها رو هم خالی می کنی .
+
+
+
+توضیح  تسک ها : 
+هر تسک شامل یک id  هست باری یونیک کردن هر تسک از یک عدد استفاده می کنیم.
+هر تسک یک رشته برای توضیح کاری که باید انجام شود دریافت می کند.
+هر تسک یک برچم دارد برای بیگیری وضعیت انجام شدن آن تسک
+تسک ها در قالب آرایه ای از شی ها هستند. (مانند جیسون)
+
+مشاهده می کنید در کدی که در قالب نوشتیم در تگ < t > گفتیم برای هر شی task در آرایه tasks با توجه به id آن کارهایی انجام دهند. اسن قسمت شبیه حلقه for-each کار می کند و آرایه ما نیز iterable است.
+
+توی این مرحله می تونیم کد های زیر رو به app.css اضافه کنیم که لیستمون ظاهر بهتری داشته باشه:
+
+.task-list {
+  width: 300px;
+  margin: 50px auto;
+  background: aliceblue;
+  padding: 10px;
+}
+
+.task {
+  font-size: 18px;
+  color: #111111;
+}
+
+بهتر شد درسته؟
+
+برای این که بخوایم تسک های انجام شده رو کم رنگ تر نشون بدیم و از تسک های منده متفاوتشون کنیم میتونید این کد رو در template جایگزین کنیم:
+
+					
+<div class="task" t-att-class="task.isCompleted ? 'done' : ''">
+
+و این استایل رو هم به فایل  app.css اضافه می کنیم:
+
+.task.done {
+  opacity: 0.7;
+}
+
+حالا یک ویژگی بویا به کارمون اضافه کردیم که با توجه به flag هر تسک متفاوت هست.
+تغییرات زیر رو در کد فایل app.js ایجاد کنید : 
+
+// -------------------------------------------------------------------------
+// Task Component
+// -------------------------------------------------------------------------
+class Task extends Component {
+  static template = xml /* xml */`
+	<div class="task" t-att-class="props.task.isCompleted ? 'done' : ''">
+  	<input type="checkbox" t-att-checked="props.task.isCompleted"/>
+  	<span><t t-esc="props.task.text"/></span>
+	</div>`;
+  static props = ["task"];
+}
+
+// -------------------------------------------------------------------------
+// Root Component
+// -------------------------------------------------------------------------
+class Root extends Component {
+  static template = xml /* xml */`
+	<div class="task-list">
+  	<t t-foreach="tasks" t-as="task" t-key="task.id">
+    	<Task task="task"/>
+  	</t>
+	</div>`;
+	static components = { Task };
+
+	tasks = [
+    	...
+	];
+}
+
+// -------------------------------------------------------------------------
+// Setup
+// -------------------------------------------------------------------------
+mount(Root, document.body, {dev: true});
+
+
+تو این کد چه اتفاقی افتاد؟
+اول ما یک جز فرعی (sub component)  به نام Task تعریف کردیم.
+ابن جز فرعی رو به static component کلاس والد خودش دادیم تا owl بتونه یک رفرنس بهش رو داشته باشه. 
+در کلاسی که برای جز فرعی تعریف کردیم یک prop key داریم که برای اعتبار سنجی به ما کمک می کند این جز به هنگام بازسازی اجزا بسیار کمک کننده است.
+در نهایت برای فعال کردن اعتبار سنجی بشتیبان باید یک حالت  owl را به dev بدهیم.
+
+
+the Task component has a props key: this is only useful for validation purpose. It says that each Task should be given exactly one prop, named task. If this is not the case, Owl will throw an error. This is extremely useful when refactoring components
+finally, to activate the props validation, we need to set Owl's mode to dev. This is done in the last argument of the mount function. Note that this should be removed when an app is used in a real production environment, since dev mode is slightly slower, due to extra checks and validations
+و در نهایت استایل های زیر را به فایل app.css اضافه می کنیم : 
+
+.todo-app {
+  width: 300px;
+  margin: 50px auto;
+  background: aliceblue;
+  padding: 10px;
+}
+
+.todo-app > input {
+  display: block;
+  margin: auto;
+}
+
+.task-list {
+  margin-top: 8px;
+}
+
+این کد باید زمانی که Root component اماده شد اجرا بشه. برای این کار باید از قلاب onMounted استفاده کنیم. 
+همچنین برای این که به input رفرنس داشته باشیم باید ازuseRef استفاده کنیم و برای استفاده ازش به input یک t-ref بدهیم . از قلاب , useState استفاده می کنیم تا owl متوجه نیاز دوباره رندر کردن واسط کاربر را در زمان ایجاد تسک جدید متوجه بشود. 
+تغییرات زیر را در فایل خود اعمال کنید . 
+
+
+// on top of file:
+const { Component, mount, xml, useRef, onMounted , useState } = owl;
+
+// in App
+setup() {
+	const inputRef = useRef("add-input");
+	onMounted(() => inputRef.el.focus());
+}
+
+
+
+
+کد زیر رو هم به root اضافه می کنیم: 
+
+
+
+تبریک ! حالا میتونی تسک های جدید رو به لیستمون اضافه کنیم.
+ما هنوز کدی ننوشتیم حه حالت flag هر تسک رو تغییر بده \س اگر امتحان کنید متوجه میشید که با زدن تیک انجام شدن تسک تغییری در ظاهر تسک رخ نمیده. 
+\س اول تغییر زیر رو در input ایجاد کنید و بعد متد زیر رو اضافه کنید : 
+
+<input type="checkbox" t-att-checked="props.task.isCompleted" t-on-click="toggleTask"/>
+
+toggleTask() {
+  this.props.task.isCompleted = !this.props.task.isCompleted;
+}
+
+
+توی این مرحله میخوایم قابلیت حذف کردن تسک ها رو به برناممون اضافه کنیم : 
+قالب تسک  رو با این کد زیر بروزسانی کنید:
+<div class="task" t-att-class="props.task.isCompleted ? 'done' : ''">
+	<input type="checkbox" t-att-checked="props.task.isCompleted" t-on-click="toggleTask"/>
+	<span><t t-esc="props.task.text"/></span>
+	<span class="delete" t-on-click="deleteTask">🗑</span>
+</div>
+
+حالا اسن استایل ها رو به فایلتون اضافه کنید : 
+.task {
+  font-size: 18px;
+  color: #111111;
+  display: grid;
+  grid-template-columns: 30px auto 30px;
+}
+
+.task > input {
+  margin: auto;
+}
+
+.delete {
+  opacity: 0;
+  cursor: pointer;
+  text-align: center;
+}
+
+.task:hover .delete {
+  opacity: 1;
+}
+
+و این بخش رو به کلاس تسک اضافه کنید : 
+static props = ["task", "onDelete"];
+
+deleteTask() {
+	this.props.onDelete(this.props.task);
+}
+
+حالا این تغییرات رو در Root compoent  اعمال کنید : 
+
+  <Task task="task" onDelete.bind="deleteTask"/>
+
+deleteTask(task) {
+	const index = this.tasks.findIndex(t => t.id === task.id);
+	this.tasks.splice(index, 1);
+}
+
+Notice also that we have two functions named deleteTask. The one in the Task component just delegates the work to the Root component that owns the task list via the onDelete property.
+
+
+متوجه شدید که ما الان دو تا متد deleteTask داریم: متد درون task component فقط کار را از طریق ویژگی onDelete به  Root component که دارای لیست وظایف است واگذار می کند.
+
+Looking at the code, it is apparent that all the code handling tasks is scattered all around the application. Also, it mixes UI code and business logic code. Owl does not provide any high level abstraction to manage business logic, but it is easy to do it with the basic reactivity primitives (useState and reactive).
+Let us use it in our application to implement a central store. This is a pretty large refactoring (for our application), since it involves extracting all task related code out of the components. Here is the new content of the app.js file:
+ کد هایی که تا ایناحظه نوشتیم بسیار \راکنده هستند. و بخش UI و منطق بیزینیس کاملا در هم امیخته شده.
+به طور کلی owl هیچ منطق ابسترکشنی برای مدیریت منطق بیزینس نداره اما میتونیم برای راختی از useStste و reactive استفاده کنیم. 
+کد های فایل app.js  را به صورت زیر تغییر می دهیم : 
+const { Component, mount, xml, useRef, onMounted, useState, reactive, useEnv } = owl;
+
+// -------------------------------------------------------------------------
+// Store
+// -------------------------------------------------------------------------
+function useStore() {
+  const env = useEnv();
+  return useState(env.store);
+}
+
+// -------------------------------------------------------------------------
+// TaskList
+// -------------------------------------------------------------------------
+class TaskList {
+  nextId = 1;
+  tasks = [];
+
+  addTask(text) {
+	text = text.trim();
+	if (text) {
+  	const task = {
+    	id: this.nextId++,
+    	text: text,
+    	isCompleted: false,
+  	};
+  	this.tasks.push(task);
+	}
+  }
+
+  toggleTask(task) {
+	task.isCompleted = !task.isCompleted;
+  }
+
+  deleteTask(task) {
+	const index = this.tasks.findIndex((t) => t.id === task.id);
+	this.tasks.splice(index, 1);
+  }
+}
+
+function createTaskStore() {
+  return reactive(new TaskList());
+}
+
+// -------------------------------------------------------------------------
+// Task Component
+// -------------------------------------------------------------------------
+class Task extends Component {
+  static template = xml/* xml */ `
+	<div class="task" t-att-class="props.task.isCompleted ? 'done' : ''">
+  	<input type="checkbox" t-att-checked="props.task.isCompleted" t-on-click="() => store.toggleTask(props.task)"/>
+  	<span><t t-esc="props.task.text"/></span>
+  	<span class="delete" t-on-click="() => store.deleteTask(props.task)">🗑</span>
+	</div>`;
+
+  static props = ["task"];
+
+  setup() {
+	this.store = useStore();
+  }
+}
+
+// -------------------------------------------------------------------------
+// Root Component
+// -------------------------------------------------------------------------
+class Root extends Component {
+  static template = xml/* xml */ `
+	<div class="todo-app">
+  	<input placeholder="Enter a new task" t-on-keyup="addTask" t-ref="add-input"/>
+  	<div class="task-list">
+    	<t t-foreach="store.tasks" t-as="task" t-key="task.id">
+      	<Task task="task"/>
+    	</t>
+  	</div>
+	</div>`;
+  static components = { Task };
+
+  setup() {
+	const inputRef = useRef("add-input");
+	onMounted(() => inputRef.el.focus());
+	this.store = useStore();
+  }
+
+  addTask(ev) {
+	// 13 is keycode for ENTER
+	if (ev.keyCode === 13) {
+  	this.store.addTask(ev.target.value);
+  	ev.target.value = "";
+	}
+  }
+}
+
+// -------------------------------------------------------------------------
+// Setup
+// -------------------------------------------------------------------------
+const env = {
+  store: createTaskStore(),
+};
+mount(Root, document.body, { dev: true, env });
+
+الان کدمون هم مرتب شده و هم به خوبی کار می کنه اما تا وقتی که کاربر صفحه رو رفرش نکنه … 
+این موضوع خیلی بد هست که تسک هامون فقط در مموری نگه داری بشه. برای حل این مشکل این کد هارو اضافه می کنیم.
+
+class TaskList {
+  constructor(tasks) {
+	this.tasks = tasks || [];
+	const taskIds = this.tasks.map((t) => t.id);
+	this.nextId = taskIds.length ? Math.max(...taskIds) + 1 : 1;
+  }
+  // ...
+}
+
+function createTaskStore() {
+  const saveTasks = () => localStorage.setItem("todoapp", JSON.stringify(taskStore.tasks));
+  const initialTasks = JSON.parse(localStorage.getItem("todoapp") || "[]");
+  const taskStore = reactive(new TaskList(initialTasks), saveTasks);
+  saveTasks();
+  return taskStore;
+}
+
+کدمون الان هم کامل شده اما رای جذاب تر بودن میتونیم یه قابلیت های دیگه ای هم بهش اضافه کنیم : 
+با کد ها زیر میتونیم قابلیت نشان دادن تسک های کامل شده یا کامل نشده را داشته باشیم : 
+
+ class Root extends Component {
+  static template = xml /* xml */`
+	<div class="todo-app">
+  	<input placeholder="Enter a new task" t-on-keyup="addTask" t-ref="add-input"/>
+  	<div class="task-list">
+    	<t t-foreach="displayedTasks" t-as="task" t-key="task.id">
+      	<Task task="task"/>
+    	</t>
+  	</div>
+  	<div class="task-panel" t-if="store.tasks.length">
+    	<div class="task-counter">
+      	<t t-esc="displayedTasks.length"/>
+      	<t t-if="displayedTasks.length lt store.tasks.length">
+          	/ <t t-esc="store.tasks.length"/>
+      	</t>
+      	task(s)
+    	</div>
+    	<div>
+      	<span t-foreach="['all', 'active', 'completed']"
+        	t-as="f" t-key="f"
+        	t-att-class="{active: filter.value===f}"
+        	t-on-click="() => this.setFilter(f)"
+        	t-esc="f"/>
+    	</div>
+  	</div>
+	</div>`;
+
+  setup() {
+	...
+	this.filter = useState({ value: "all" });
+  }
+
+  get displayedTasks() {
+	const tasks = this.store.tasks;
+	switch (this.filter.value) {
+  	case "active": return tasks.filter(t => !t.isCompleted);
+  	case "completed": return tasks.filter(t => t.isCompleted);
+  	case "all": return tasks;
+	}
+  }
+
+  setFilter(filter) {
+	this.filter.value = filter;
+  }
+}
+
+این کد هارو هم به استایلهامون اضافه می کنیم .
+
+.task-panel {
+  color: #0088ff;
+  margin-top: 8px;
+  font-size: 14px;
+  display: flex;
+}
+
+.task-panel .task-counter {
+  flex-grow: 1;
+}
+
+.task-panel span {
+  padding: 5px;
+  cursor: pointer;
+}
+
+.task-panel span.active {
+  font-weight: bold;
+}
+
+اضافه کردن یک فیدبک در زمان moushover : 
+.task:hover {
+  background-color: #def0ff;
+} 
